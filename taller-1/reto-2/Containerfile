@@ -1,6 +1,22 @@
-FROM rust:alpine3.18
+FROM docker.io/rust:alpine as build
+
+RUN apk add git musl-dev
 
 RUN mkdir /workspace/
 
+WORKDIR /workspace/
+
 RUN git clone https://github.com/dpkg-i-foo-deb/microservices
 
+RUN cd microservices/taller-1/reto-2/ && cargo build --release 
+
+FROM docker.io/alpine:latest as prod
+
+ENV ROCKET_PORT=80
+ENV ROCKET_ADDRESS=0.0.0.0
+
+EXPOSE 80/tcp   
+
+COPY --from=build /workspace/microservices/taller-1/reto-2/target/release/reto-2 /bin/server
+
+CMD ["server"]
