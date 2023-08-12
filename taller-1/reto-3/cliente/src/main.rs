@@ -19,6 +19,9 @@ fn fetch_username() -> String {
 }
 
 async fn send_message() {
+
+    let url = setup_url();
+
     let payload = Payload::new(fetch_username());
 
     let json = payload.to_json();
@@ -27,7 +30,7 @@ async fn send_message() {
         Some(json) => {
             let client = reqwest::Client::new();
 
-            client.post("http://servidor/greet").body(json).send().await
+            client.post(url).body(json).send().await
 
 
         },
@@ -38,7 +41,7 @@ async fn send_message() {
         Ok(response)=>{
             print_message(response).await;
         },
-        Err(_)=>{panic!("Failed to send the request")}
+        Err(error)=>{panic!("Failed to send the request {}",error)}
     }
 }
 
@@ -50,5 +53,14 @@ async fn print_message(response:Response){
             println!("{}",payload.data())
         },
         Err(_)=>{panic!("Payload could not be decoded")}
+    }
+}
+
+fn setup_url() -> String{
+    let env = env::var("URL");
+
+    match env{
+        Ok(url)=>{url},
+        Err(_)=>{"http://localhost:8000/greet/".to_string()}
     }
 }
