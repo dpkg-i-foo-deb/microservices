@@ -1,0 +1,6 @@
+FROM rust:alpine3.18
+
+RUN mkdir /workspace/
+
+RUN git clone https://github.com/dpkg-i-foo-deb/microservices
+
