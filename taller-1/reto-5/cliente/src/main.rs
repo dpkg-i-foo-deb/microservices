@@ -43,7 +43,7 @@ async fn print_message(response: Response) {
 
     match data {
         Ok(payload) => {
-            println!("{}", payload.data())
+            println!("\n\nThe JWT token is:\n\n{}", payload.data())
         }
         Err(_) => {
             panic!("Payload could not be decoded")
