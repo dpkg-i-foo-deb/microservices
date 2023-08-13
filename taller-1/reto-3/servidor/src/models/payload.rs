@@ -1,17 +1,16 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize,Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Payload {
-    data:String
+    data: String,
 }
 
-impl Payload{
-    pub fn new (data:String) -> Payload {
+impl Payload {
+    pub fn new(data: String) -> Payload {
         Payload { data }
     }
 
-    pub fn data (&self) -> String{
+    pub fn data(&self) -> String {
         self.data.to_owned()
     }
-
 }

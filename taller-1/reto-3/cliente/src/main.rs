@@ -19,7 +19,6 @@ fn fetch_username() -> String {
 }
 
 async fn send_message() {
-
     let url = setup_url();
 
     let payload = Payload::new(fetch_username());
@@ -31,36 +30,40 @@ async fn send_message() {
             let client = reqwest::Client::new();
 
             client.post(url).body(json).send().await
-
-
-        },
-        None=>{panic!("Payload could not be constructed")}
+        }
+        None => {
+            panic!("Payload could not be constructed")
+        }
     };
 
     match result {
-        Ok(response)=>{
+        Ok(response) => {
             print_message(response).await;
-        },
-        Err(error)=>{panic!("Failed to send the request {}",error)}
+        }
+        Err(error) => {
+            panic!("Failed to send the request {}", error)
+        }
     }
 }
 
-async fn print_message(response:Response){
+async fn print_message(response: Response) {
     let data = response.json::<Payload>().await;
 
     match data {
-        Ok(payload)=>{
-            println!("{}",payload.data())
-        },
-        Err(_)=>{panic!("Payload could not be decoded")}
+        Ok(payload) => {
+            println!("{}", payload.data())
+        }
+        Err(_) => {
+            panic!("Payload could not be decoded")
+        }
     }
 }
 
-fn setup_url() -> String{
+fn setup_url() -> String {
     let env = env::var("URL");
 
-    match env{
-        Ok(url)=>{url},
-        Err(_)=>{"http://localhost:8000/greet/".to_string()}
+    match env {
+        Ok(url) => url,
+        Err(_) => "http://localhost:8000/greet/".to_string(),
     }
 }

@@ -1,3 +1,3 @@
-pub fn build_greet(username:String)-> String{
-    format!("Holis! {}",username)
+pub fn build_greet(username: String) -> String {
+    format!("Holis! {}", username)
 }

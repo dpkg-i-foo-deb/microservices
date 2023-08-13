@@ -1,9 +1,10 @@
-mod models;
 mod handlers;
+mod models;
 mod services;
 
-#[macro_use] extern crate rocket;
+#[macro_use]
+extern crate rocket;
 #[launch]
-fn rocket() ->_{
+fn rocket() -> _ {
     rocket::build().mount("/", routes![handlers::greet::greet])
 }
