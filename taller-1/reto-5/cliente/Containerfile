@@ -1,0 +1,25 @@
+FROM docker.io/rust:bookworm as build
+
+
+RUN apt install pkg-config
+RUN apt install libssl-dev
+
+RUN mkdir /workspace/
+
+WORKDIR /workspace/
+
+RUN git clone https://github.com/dpkg-i-foo-deb/microservices
+
+RUN cd microservices/taller-1/reto-5/cliente && cargo build --release 
+
+FROM docker.io/debian:12-slim as prod
+
+RUN apt update && apt install -y openssl
+
+ENV URL="http://contenedor-servidor-reto-5/jwt"
+ENV USERNAME="mateoestradaramirez@outlook.com"
+
+
+COPY --from=build /workspace/microservices/taller-1/reto-5/cliente/target/release/cliente /bin/cliente
+
+CMD ["cliente"]
