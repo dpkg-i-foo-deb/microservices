@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  client:
+    depends_on:
+      - server
+    build:
+      context: ./cliente
+      dockerfile: Containerfile
+      tags:
+        - "cliente-reto-3:latest"
+    container_name: contenedor-cliente-reto-3
+    networks:
+      - reto-3
+    hostname: cliente
+  server:
+    build:
+      context: ./servidor
+      dockerfile: Containerfile
+      tags:
+        - "servidor-reto-3:latest"
+    container_name: contenedor-servidor-reto-3
+    networks:
+      - reto-3
+    ports:
+      - "8080:80"
+    hostname: servidor
+
+networks:
+  reto-3: {}
