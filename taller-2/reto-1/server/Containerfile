@@ -1,5 +1,13 @@
-FROM docker.io/surrealdb/surrealdb
+FROM docker.io/debian:12-slim
+
+RUN apt update && apt install -y curl git
+
+RUN curl -sSf https://install.surrealdb.com | sh
+
+RUN git clone https://github.com/dpkg-i-foo-deb/microservices
+
+WORKDIR /microservices/taller-2/reto-1/
 
 EXPOSE 8000
 
-CMD [ "start" ]
+CMD [ "server/script.sh" ]
