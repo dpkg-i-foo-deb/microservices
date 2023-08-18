@@ -1,0 +1,5 @@
+FROM docker.io/surrealdb/surrealdb
+
+EXPOSE 8000
+
+CMD [ "start" ]
