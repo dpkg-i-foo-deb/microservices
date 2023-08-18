@@ -1,0 +1,3 @@
+DEFINE DATABASE auth;
+
+DEFINE LOGIN dpkg ON DATABASE auth PASSWORD 'dpkg' ;

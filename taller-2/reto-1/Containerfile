@@ -1,0 +1,9 @@
+FROM docker.io/alpine
+
+RUN pkg add wget git
+
+RUN curl -sSf https://install.surrealdb.com | sh
+
+RUN mkdir /workspace/
+
+WORKDIR /workdir/
