@@ -13,18 +13,6 @@ services:
     ports:
       - "8000:8000"
     hostname: db
-  client:
-    depends_on:
-      - server
-    build:
-      context: ./client
-      dockerfile: Containerfile
-      tags:
-        - "cliente-reto-1:latest"
-    container_name: contenedor-cliente-reto-1
-    networks:
-      - reto-1
-    hostname: cliente
 
 networks:
   reto-1: {}
