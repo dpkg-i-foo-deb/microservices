@@ -3,9 +3,9 @@
 
 if [ -d "database" ] 
 
-    surreal start --log debug --user root --pass root file:database/surreal.db
-
 then 
+
+    surreal start --log debug --user root --pass root file:database/surreal.db
 
 else
 
