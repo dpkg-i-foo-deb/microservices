@@ -9,6 +9,8 @@ then
 
 else
 
+    echo "Creating schema..."
+
     surreal start --log debug --user root --pass root file:database/surreal.db &
 
     sleep 10
