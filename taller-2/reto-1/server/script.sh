@@ -5,6 +5,8 @@ if [ -d "database" ]
 
 then 
 
+    echo "Schema already exists"
+
     surreal start --log debug --user root --pass root file:database/surreal.db
 
 else
