@@ -1,0 +1,16 @@
+version: '3.1'
+
+services:
+
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: dpkg
+      POSTGRES_PASSWORD: dpkg
+      POSTGRES_DB: auth
+
+    container_name: db
+
+    ports: 5432:5432
+    volumes:
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
