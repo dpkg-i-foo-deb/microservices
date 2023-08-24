@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Containerfile
+      tags:
+        - "bd-reto-1:latest"
+    container_name: contenedor-bd-reto-1
+    networks:
+      - reto-1
+    ports:
+      - "8000:8000"
+    hostname: db
+
+networks:
+  reto-1: {}

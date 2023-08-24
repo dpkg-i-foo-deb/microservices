@@ -1,0 +1,9 @@
+DEFINE NAMESPACE auth;
+
+USE NS auth;
+
+DEFINE DATABASE auth;
+
+USE NS auth DB auth; 
+
+DEFINE LOGIN dpkg ON DATABASE PASSWORD 'dpkg';
