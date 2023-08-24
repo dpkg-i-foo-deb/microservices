@@ -1,18 +1,20 @@
 version: '3.8'
 
 services:
-  server:
-    build:
-      context: ./server
-      dockerfile: Containerfile
-      tags:
-        - "bd-reto-1:latest"
-    container_name: contenedor-bd-reto-1
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: dpkg
+      POSTGRES_PASSWORD: dpkg
+      POSTGRES_DB: auth
+
+    container_name: db
+
+    ports: 5432:5432
+    volumes:
+      - ../server/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     networks:
       - reto-1
-    ports:
-      - "8000:8000"
-    hostname: db
 
 networks:
   reto-1: {}
