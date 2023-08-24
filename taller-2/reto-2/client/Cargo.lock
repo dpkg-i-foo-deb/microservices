@@ -5,6 +5,17 @@ version = 3
 [[package]]
 name = "auth"
 version = "0.1.0"
+dependencies = [
+ "auth-lib",
+]
+
+[[package]]
+name = "auth-lib"
+version = "0.1.0"
+dependencies = [
+ "diesel",
+ "dotenvy",
+]
 
 [[package]]
 name = "bitflags"
@@ -29,14 +40,6 @@ dependencies = [
  "diesel_derives",
  "itoa",
  "pq-sys",
-]
-
-[[package]]
-name = "diesel-lib"
-version = "0.1.0"
-dependencies = [
- "diesel",
- "dotenvy",
 ]
 
 [[package]]
