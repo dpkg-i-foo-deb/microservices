@@ -1,4 +1,6 @@
 use std::env;
+use std::thread::sleep;
+use std::time;
 
 use diesel::{Connection, PgConnection};
 
@@ -8,16 +10,12 @@ pub struct DB {
 
 impl DB {
     pub fn new() -> Option<DB> {
-        match Self::establish_connection() {
-            Ok(connection) => Some(DB { connection }),
-            Err(err) => {
-                eprintln!("{err}");
-                None
-            }
-        }
+        Some(DB {
+            connection: Self::establish_connection(),
+        })
     }
 
-    fn establish_connection() -> Result<PgConnection, diesel::ConnectionError> {
+    fn establish_connection() -> PgConnection {
         let result = env::var("CONNECTION_STRING");
 
         let connection_string = match result {
@@ -25,6 +23,25 @@ impl DB {
             Err(err) => panic!("Could not fetch the connection string {err}"),
         };
 
-        PgConnection::establish(&connection_string)
+        let mut counter: u8 = 0;
+
+        let result = loop {
+            match PgConnection::establish(&connection_string) {
+                Ok(conn) => break conn,
+                Err(err) => match counter {
+                    0..=5 => {
+                        eprintln!("Could not connect to the database {err}");
+                        eprintln!("Retrying...");
+                        sleep(time::Duration::from_secs(5));
+                        counter += 1;
+                    }
+                    _ => {
+                        panic!("Giving up to connect... {err}")
+                    }
+                },
+            }
+        };
+
+        result
     }
 }
