@@ -10,6 +10,10 @@ RUN cd microservices/taller-2/reto-2/client && cargo build --release
 
 FROM docker.io/debian:12-slim as prod
 
+RUN apt update
+
+RUN apt install -y libpq5
+
 COPY --from=build /workspace/microservices/taller-2/reto-2/client/target/release/auth /bin/client
 
 CMD ["client"]
