@@ -1,3 +1,5 @@
+use std::env;
+
 use diesel::{Connection, PgConnection};
 
 pub struct DB {
@@ -16,6 +18,13 @@ impl DB {
     }
 
     fn establish_connection() -> Result<PgConnection, diesel::ConnectionError> {
-        PgConnection::establish("postgres://dpkg:dpkg@localhost/auth")
+        let result = env::var("CONNECTION_STRING");
+
+        let connection_string = match result {
+            Ok(conn) => conn,
+            Err(err) => panic!("Could not fetch the connection string {err}"),
+        };
+
+        PgConnection::establish(&connection_string)
     }
 }

@@ -14,7 +14,23 @@ services:
     volumes:
       - ../server/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     networks:
-      - reto-1
+      - reto-2
+
+  client:
+    depends_on:
+      - db
+    build:
+      context: ./client
+      dockerfile: Containerfile
+      tags:
+        - "cliente-reto-2:latest"
+    container_name: contenedor-cliente-reto-2
+    networks:
+      - reto-2
+    hostname: cliente
+
+    environment:
+      - CONNECTION_STRING=postgres://dpkg:dpkg@db-reto-2/auth
 
 networks:
-  reto-1: {}
+  reto-2: {}
