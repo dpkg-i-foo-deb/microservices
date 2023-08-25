@@ -42,6 +42,8 @@ impl DB {
             }
         };
 
+        println!("Connected to the database!");
+
         result
     }
 }
