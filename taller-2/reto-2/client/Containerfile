@@ -10,8 +10,6 @@ RUN cd microservices/taller-2/reto-2/client && cargo build --release
 
 FROM docker.io/debian:12-slim as prod
 
-RUN apt update && apt install -y openssl
-
 COPY --from=build /workspace/microservices/taller-2/reto-2/client/target/release/client /bin/client
 
 CMD ["client"]
