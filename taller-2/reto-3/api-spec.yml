@@ -1,0 +1,240 @@
+openapi: 3.0.0
+servers: [{ "url": "/" }]
+
+info:
+  title: Auth API
+  description: This API allows you to manage user registration, login, modification and deletion.
+  version: 1.0.0
+  contact:
+    {
+      "name": "Mateo Estrada Ramírez",
+      "url": "mateo.estradar@uqvirtual.edu.co",
+      "email": "mateo.estradar@uqvirtual.edu.co",
+    }
+
+tags:
+  - name: Auth
+    description: Operations realated to authentification
+
+paths:
+  /users:
+    post:
+      summary: Register a new user
+      tags:
+        - Auth
+      description: This route is used to register a new user on the system
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "201":
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /update-password/{email}:
+    post:
+      summary: Update the password from a user account
+      tags:
+        - Auth
+      description: The request must contain a valid token owned by the user who is going to update the password
+      operationId: updatePassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_password:
+                  type: string
+      responses:
+        "200":
+          description: Password updated successfully
+        "401":
+          description: Invalid credentials specified
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: User account is disabled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /recover-password/{email}:
+    post:
+      summary: Recover some user account password
+      tags:
+        - Auth
+      description: The account must be currently active in order to recover its password
+      operationId: recoverPassword
+      responses:
+        "200":
+          description: Recovery email sent successfully
+        "409":
+          description: User account is disabled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /login:
+    post:
+      summary: Login a user
+      tags:
+        - Auth
+      description: Login a user into the system
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: User logged in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        "401":
+          description: Invalid credentials specified
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /users/{id}:
+    get:
+      summary: Get a user by ID
+      tags:
+        - Auth
+      description: Get a registered (Not disabled) user from the system
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: The user with the specified ID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: User account is disabled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /users/{id}/disable:
+    delete:
+      summary: Disable a user account
+      description: After disabling the account, the user won't be able to log in again
+      tags:
+        - Auth
+      operationId: disableUserAccount
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User account disabled successfully
+        "401":
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: User account is already disabled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        status:
+          type: string
+    Error:
+      type: object
+      properties:
+        error_id:
+          type: string
+        error_description:
+          type: string
