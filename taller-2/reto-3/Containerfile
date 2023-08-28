@@ -1,0 +1,7 @@
+FROM docker.io/redocly/redoc
+
+WORKDIR /usr/share/nginx/html/
+
+COPY api-spec.yml .
+
+ENV SPEC_URL=api-spec.yml
