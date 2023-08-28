@@ -1,0 +1,3 @@
+FROM docker.io/postgres
+
+COPY schema.sql docker-entrypoint-initdb.d/schema.sql
