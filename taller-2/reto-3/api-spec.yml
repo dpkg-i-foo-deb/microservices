@@ -1,3 +1,15 @@
+# POST para insertar
+# DELETE para eliminar
+# GET para obtener un solo registro
+# PATCH para una actualización parcial
+# PUT para una actualización completa
+
+# Cuando se requiere autenticar mandar precondition failed 403
+
+# Adicionar en los esquemas los atributos requeridos
+
+# También en el error
+
 openapi: 3.0.0
 servers: [{ "url": "/" }]
 
