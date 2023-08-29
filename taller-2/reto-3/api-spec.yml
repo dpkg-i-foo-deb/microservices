@@ -4,12 +4,6 @@
 # PATCH para una actualización parcial
 # PUT para una actualización completa
 
-# Cuando se requiere autenticar mandar precondition failed 403
-
-# Adicionar en los esquemas los atributos requeridos
-
-# También en el error
-
 openapi: 3.0.0
 servers: [{ "url": "/" }]
 
@@ -29,101 +23,12 @@ tags:
     description: Operations realated to authentification
 
 paths:
-  /users:
-    post:
-      summary: Register a new user
-      tags:
-        - Auth
-      description: This route is used to register a new user on the system
-      operationId: registerUser
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                email:
-                  type: string
-                password:
-                  type: string
-      responses:
-        "201":
-          description: User created successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-
-  /update-password/{email}:
-    post:
-      summary: Update the password from a user account
-      tags:
-        - Auth
-      description: The request must contain a valid token owned by the user who is going to update the password
-      operationId: updatePassword
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                new_password:
-                  type: string
-      responses:
-        "200":
-          description: Password updated successfully
-        "401":
-          description: Invalid credentials specified
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "404":
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "409":
-          description: User account is disabled
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-  /recover-password/{email}:
-    post:
-      summary: Recover some user account password
-      tags:
-        - Auth
-      description: The account must be currently active in order to recover its password
-      operationId: recoverPassword
-      responses:
-        "200":
-          description: Recovery email sent successfully
-        "409":
-          description: User account is disabled
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "404":
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
   /login:
     post:
-      summary: Login a user
+      summary: Login into the system
       tags:
         - Auth
-      description: Login a user into the system
+      description: Login an existing user into the system
       operationId: loginUser
       requestBody:
         required: true
@@ -153,7 +58,86 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /users/{id}:
+  /users:
+    post:
+      summary: Register a new user
+      tags:
+        - Auth
+      description: This route is used to register a new user on the system
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "201":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Authentication needed, please log in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Not enough privileges on the current account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    get:
+      summary: Get the list from all users
+      tags:
+        - Auth
+      description: Get a list from all the users registered into the system (Pagination)
+      operationId: getUsers
+      responses:
+        "200":
+          description: List retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "204":
+          description: There are no users registered into the system
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+        "401":
+          description: Authentication needed, please log in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Not enough privileges to get user information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /users/{id}/:
     get:
       summary: Get a user by ID
       tags:
@@ -174,7 +158,59 @@ paths:
               schema:
                 $ref: "#/components/schemas/User"
         "401":
-          description: Access denied
+          description: Authentication needed, please log in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Not enough privileges to get user information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: User account is disabled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    patch:
+      summary: Update the password from a user account
+      tags:
+        - Auth
+      description: The request must contain a valid token owned by the user who is going to update the password
+      operationId: updatePassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_email:
+                  type: string
+                new_username:
+                  type: string
+                new_password:
+                  type: string
+      responses:
+        "200":
+          description: User updated successfully
+        "401":
+          description: Authentication needed, please log in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Not enough privileges to update the user account
           content:
             application/json:
               schema:
@@ -192,7 +228,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /users/{id}/disable:
     delete:
       summary: Disable a user account
       description: After disabling the account, the user won't be able to log in again
@@ -209,7 +244,13 @@ paths:
         "200":
           description: User account disabled successfully
         "401":
-          description: Access denied
+          description: Authentication needed, please log in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Not enough privileges to disable user account
           content:
             application/json:
               schema:
@@ -228,10 +269,62 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /tokens/:
+    post:
+      summary: Generate some token
+      tags:
+        - Auth
+      description: The token type to get is specified in the request body
+      operationId: generateToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token_type
+              properties:
+                token_type:
+                  type: string
+                user_email:
+                  type: string
+      responses:
+        "200":
+          description: Token generated successfully
+        "401":
+          description: Authentication required, please log in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Not enough privileges to generate a token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: If you're generating a password reset or refresh token, the user has not been found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: If you're generating a password reset or refresh token, the user account is disabled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
 components:
   schemas:
     User:
       type: object
+      required:
+        - id
+        - username
+        - email
       properties:
         id:
           type: integer
@@ -245,6 +338,9 @@ components:
           type: string
     Error:
       type: object
+      required:
+        - error_id
+        - error_description
       properties:
         error_id:
           type: string
