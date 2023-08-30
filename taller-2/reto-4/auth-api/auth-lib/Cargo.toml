@@ -7,4 +7,10 @@ edition = "2021"
 
 [dependencies]
 diesel = { version = "2.1.0", features = ["postgres"] }
+password-auth = "0.3.0"
 uuid = { version = "1.4.1", features = ["v4", "fast-rng", "macro-diagnostics"] }
+jsonwebtoken = "8"
+# If you do not need pem decoding, you can disable the default feature `use_pem` that way:
+# jsonwebtoken = {version = "8", default-features = false }
+serde = { version = "1.0", features = ["derive"] }
+chrono = "0.4.27"
