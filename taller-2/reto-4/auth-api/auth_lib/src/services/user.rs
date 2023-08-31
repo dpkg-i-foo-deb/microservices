@@ -8,6 +8,10 @@ pub struct UserService<'s> {
 }
 
 impl UserService<'_> {
+    pub fn new(db: &mut PgConnection) -> UserService {
+        UserService { db }
+    }
+
     pub fn create_user(&mut self, new_user: NewUser) -> Option<User> {
         let id = generate_uuid();
 

@@ -96,12 +96,13 @@ checksum = "c59bdb34bc650a32731b31bd8f0829cc15d24a708ee31559e0bb34f2bc320cba"
 name = "auth"
 version = "0.1.0"
 dependencies = [
+ "auth_lib",
  "rocket",
  "serde",
 ]
 
 [[package]]
-name = "auth-lib"
+name = "auth_lib"
 version = "0.1.0"
 dependencies = [
  "chrono",

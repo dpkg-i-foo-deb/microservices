@@ -1,4 +1,4 @@
-use std::{env, os};
+use std::env;
 
 use chrono::Utc;
 use jsonwebtoken::{encode, EncodingKey, Header};
