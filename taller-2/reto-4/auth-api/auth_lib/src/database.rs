@@ -1,49 +1,28 @@
-use std::env;
-use std::thread::sleep;
-use std::time;
+use crate::errors::CoreError;
+use std::env::{self};
 
 use diesel::{Connection, PgConnection};
 
-pub struct DB {
-    pub connection: PgConnection,
-}
+#[derive(Copy, Clone)]
+pub struct DB {}
 
 impl DB {
     pub fn new() -> DB {
-        DB {
-            connection: Self::establish_connection(),
-        }
+        DB {}
     }
 
-    fn establish_connection() -> PgConnection {
-        let result = env::var("CONNECTION_STRING");
+    pub fn establish_connection(self) -> Result<PgConnection, CoreError> {
+        let db_url = Self::fetch_db_url();
 
-        let connection_string = match result {
+        let conn = PgConnection::establish(&db_url)?;
+
+        Ok(conn)
+    }
+
+    fn fetch_db_url() -> String {
+        match env::var("CONNECTION_STRING") {
             Ok(conn) => conn,
-            Err(err) => panic!("Could not fetch the connection string {err}"),
-        };
-
-        let mut counter: u8 = 0;
-
-        let result = loop {
-            match PgConnection::establish(&connection_string) {
-                Ok(conn) => break conn,
-                Err(err) => match counter {
-                    0..=5 => {
-                        eprintln!("Could not connect to the database {err}");
-                        eprintln!("Retrying...");
-                        sleep(time::Duration::from_secs(5));
-                        counter += 1;
-                    }
-                    _ => {
-                        panic!("Giving up to connect... {err}")
-                    }
-                },
-            }
-        };
-
-        println!("Connected to the database!");
-
-        result
+            Err(err) => panic!("Database string must be set {}", err),
+        }
     }
 }

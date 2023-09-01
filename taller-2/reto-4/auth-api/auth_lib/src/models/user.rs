@@ -12,36 +12,8 @@ pub struct User {
     pub status: String,
 }
 
-pub struct NewUser {
-    pub email: String,
-    pub username: String,
-    pub password: String,
-}
-
-impl User {
-    pub fn create(&self, conn: &mut PgConnection) -> Option<User> {
-        let result = diesel::insert_into(schema::users::table)
-            .values(self)
-            .returning(User::as_returning())
-            .get_result(conn);
-
-        match result {
-            Ok(user) => Some(user),
-            Err(err) => {
-                eprintln!("{err}");
-                None
-            }
-        }
-    }
-
-    pub fn list_all(conn: &mut PgConnection) -> Vec<User> {
-        match schema::users::table.load::<User>(conn) {
-            Ok(users) => users,
-            Err(err) => {
-                eprintln!("{err}");
-
-                vec![]
-            }
-        }
-    }
+pub struct NewUser<'u> {
+    pub email: &'u str,
+    pub username: &'u str,
+    pub password: &'u str,
 }

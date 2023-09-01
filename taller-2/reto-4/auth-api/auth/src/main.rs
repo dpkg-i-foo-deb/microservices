@@ -1,6 +1,5 @@
-use auth_lib::database::DB;
 use auth_lib::models::user::NewUser;
-use auth_lib::models::user::User;
+
 use auth_lib::services::user::UserService;
 use rocket::catch;
 use rocket::serde::json::json;
@@ -16,19 +15,17 @@ fn unauthorized() {
 }
 
 fn main() {
-    let mut db = DB::new();
-
-    setup_services(&mut db)
+    setup_services()
 }
 
-fn setup_services(db: &mut DB) {
-    let mut user_service = UserService::new(&mut db.connection);
+fn setup_services() {
+    let user_service = UserService::new();
 
-    let new_user = NewUser {
-        email: "mateo.estradar@uqvirtual.edu.co".to_string(),
-        username: "Mateo".to_string(),
-        password: "michi".to_string(),
+    let user = NewUser {
+        email: "mateo.estradar@uqvirtual.edu.co",
+        username: "dpkg",
+        password: "michi",
     };
 
-    user_service.create_user(new_user);
+    user_service.create_user(&user).unwrap();
 }

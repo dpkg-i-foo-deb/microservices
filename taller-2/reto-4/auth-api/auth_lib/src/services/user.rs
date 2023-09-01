@@ -1,31 +1,43 @@
+use crate::database::DB;
+use crate::errors::CoreError;
 use crate::models::user::{NewUser, User};
-use diesel::PgConnection;
+use crate::schema::users;
+
+use diesel::RunQueryDsl;
 use password_auth::generate_hash;
 use uuid::Uuid;
 
-pub struct UserService<'s> {
-    db: &'s mut PgConnection,
+pub struct UserService {
+    db: DB,
 }
 
-impl UserService<'_> {
-    pub fn new(db: &mut PgConnection) -> UserService {
+impl UserService {
+    pub fn new() -> UserService {
+        let db = DB::new();
+
         UserService { db }
     }
 
-    pub fn create_user(&mut self, new_user: NewUser) -> Option<User> {
+    pub fn create_user(&self, new_user: &NewUser) -> Result<User, CoreError> {
+        let mut conn = self.db.establish_connection()?;
+
         let id = generate_uuid();
 
-        let hash = generate_hash(new_user.password);
+        let hash = generate_hash(&new_user.password);
 
         let user = User {
             id,
-            email: new_user.email,
+            email: new_user.email.to_owned(),
             password: hash,
-            username: new_user.username,
+            username: new_user.username.to_owned(),
             status: "CREATED".to_string(),
         };
 
-        user.create(&mut self.db)
+        let user = diesel::insert_into(users::table)
+            .values(user)
+            .get_result::<User>(&mut conn)?;
+
+        Ok(user)
     }
 }
 
