@@ -1,18 +1,8 @@
 use auth_lib::models::user::NewUser;
 
 use auth_lib::services::user::UserService;
-use rocket::catch;
-use rocket::serde::json::json;
 
 mod routes;
-
-#[catch(401)]
-fn unauthorized() {
-    json!({
-        "error_id":"UNAUTHORIZED",
-        "error_description":"Invalid credentials or session needed"
-    });
-}
 
 fn main() {
     setup_services()
@@ -27,5 +17,7 @@ fn setup_services() {
         password: "michi",
     };
 
-    user_service.create_user(&user).unwrap();
+    let user = user_service.create_user(&user).unwrap();
+
+    let user = user_service.disable_user(&user).unwrap();
 }
