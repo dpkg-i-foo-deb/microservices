@@ -1,9 +1,10 @@
 use crate::database::DB;
 use crate::errors::CoreError;
 use crate::models::user::{NewUser, User};
-use crate::schema::users;
+use crate::schema::users::dsl::users;
+use diesel::prelude::*;
 
-use diesel::{ExpressionMethods, RunQueryDsl};
+use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 use password_auth::generate_hash;
 use uuid::Uuid;
 
@@ -33,7 +34,7 @@ impl UserService {
             status: "CREATED".to_string(),
         };
 
-        let user = diesel::insert_into(users::table)
+        let user = diesel::insert_into(users)
             .values(user)
             .get_result::<User>(&mut conn)?;
 
@@ -83,6 +84,21 @@ impl UserService {
             .execute(&mut conn)?;
 
         Ok(true)
+    }
+
+    pub fn generate_passwd_recover_email(&self, user_id: &str) -> Result<String, CoreError> {
+        let mut conn = self.db.establish_connection()?;
+
+        let user = users
+            .find(&user_id)
+            .select(User::as_select())
+            .first(&mut conn)
+            .optional()?;
+
+        match user {
+            Some(_) => Ok("Use this link to recover your password".to_string()),
+            None => Err(CoreError::UserNotFoundError("User not found")),
+        }
     }
 }
 
