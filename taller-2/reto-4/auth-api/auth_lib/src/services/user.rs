@@ -8,15 +8,14 @@ use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 use password_auth::generate_hash;
 use uuid::Uuid;
 
+#[derive(Clone)]
 pub struct UserService {
     db: DB,
 }
 
 impl UserService {
     pub fn new() -> UserService {
-        let db = DB::new();
-
-        UserService { db }
+        UserService { db: DB::new() }
     }
 
     pub fn create_user(&self, new_user: &NewUser) -> Result<User, CoreError> {

@@ -1,23 +1,32 @@
-use auth_lib::models::user::NewUser;
+use std::net::SocketAddr;
 
 use auth_lib::services::user::UserService;
 
-mod routes;
+use axum::routing::get;
+use axum::Router;
+use state::AppState;
 
-fn main() {
-    setup_services()
+mod handlers;
+mod middleware;
+mod state;
+
+#[tokio::main]
+async fn main() {
+    setup_app().await
 }
-
-fn setup_services() {
+async fn setup_app() {
     let user_service = UserService::new();
 
-    let user = NewUser {
-        email: "mateo.estradar@uqvirtual.edu.co",
-        username: "dpkg",
-        password: "michi",
-    };
+    let state = AppState::new(user_service);
 
-    let user = user_service.create_user(&user).unwrap();
+    let app = Router::new()
+        .route("/", get(handlers::index::index))
+        .with_state(state);
 
-    let user = user_service.disable_user(&user).unwrap();
+    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+
+    axum::Server::bind(&addr)
+        .serve(app.into_make_service())
+        .await
+        .unwrap();
 }
