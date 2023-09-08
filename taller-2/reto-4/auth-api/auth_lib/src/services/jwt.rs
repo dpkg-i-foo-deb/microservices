@@ -1,5 +1,5 @@
 use chrono::Utc;
-use jsonwebtoken::{Algorithm, EncodingKey, Header};
+use jsonwebtoken::{EncodingKey, Header};
 use serde::{Deserialize, Serialize};
 
 use crate::errors::CoreError;
@@ -11,12 +11,13 @@ pub struct Claims<'c> {
     tk_type: &'c str,
 }
 
-pub struct JWTService<'j> {
-    secret: &'j str,
+#[derive(Clone)]
+pub struct JWTService {
+    secret: String,
 }
 
-impl JWTService<'_> {
-    pub fn new(secret: &str) -> JWTService {
+impl JWTService {
+    pub fn new(secret: String) -> JWTService {
         JWTService { secret }
     }
 
