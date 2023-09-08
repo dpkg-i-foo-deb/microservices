@@ -6,6 +6,7 @@ pub enum CoreError<'a> {
     DbConnectionError(diesel::ConnectionError),
     DbResultError(diesel::result::Error),
     UserNotFoundError(&'a str),
+    JWTError(jsonwebtoken::errors::Error),
 }
 
 impl Error for CoreError<'_> {}
@@ -22,6 +23,12 @@ impl From<diesel::result::Error> for CoreError<'_> {
     }
 }
 
+impl From<jsonwebtoken::errors::Error> for CoreError<'_> {
+    fn from(err: jsonwebtoken::errors::Error) -> Self {
+        CoreError::JWTError(err)
+    }
+}
+
 impl Display for CoreError<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
         match self {
@@ -33,6 +40,9 @@ impl Display for CoreError<'_> {
             }
             CoreError::UserNotFoundError(err) => {
                 write!(f, "User not found {}", err)
+            }
+            CoreError::JWTError(err) => {
+                write!(f, "{}", err)
             }
         }
     }
