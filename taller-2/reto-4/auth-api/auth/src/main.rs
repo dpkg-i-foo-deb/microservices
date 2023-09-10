@@ -1,42 +1,35 @@
-use std::env;
-use std::net::SocketAddr;
-
 use auth_lib::services::jwt::JWTService;
 use auth_lib::services::user::UserService;
 
-use axum::routing::get;
-use axum::Router;
+use handlers::users::register_user;
+use rocket::routes;
 use state::AppState;
 
 mod handlers;
 mod middleware;
 mod state;
 
-#[tokio::main]
+use handlers::index::index;
+
+#[rocket::main]
 async fn main() {
-    setup_app().await
+    match setup_app().await {
+        Ok(_) => println!("Server stopped"),
+        Err(err) => eprintln!("{err}"),
+    }
 }
-async fn setup_app() {
+
+async fn setup_app() -> Result<(), rocket::Error> {
     let user_service = UserService::new();
-    let jwt_service = JWTService::new(get_secret());
+    let jwt_service = JWTService::new();
 
     let state = AppState::new(user_service, jwt_service);
 
-    let app = Router::new()
-        .route("/", get(handlers::index::index))
-        .with_state(state);
+    let _rocket = rocket::build()
+        .mount("/", routes![index, register_user])
+        .manage(state)
+        .launch()
+        .await?;
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
-
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
-}
-
-fn get_secret() -> String {
-    match env::var("SECRET") {
-        Ok(secret) => secret,
-        Err(err) => panic!("Secret key is required {}", err),
-    }
+    Ok(())
 }

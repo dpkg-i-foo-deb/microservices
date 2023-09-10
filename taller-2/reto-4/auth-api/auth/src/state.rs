@@ -1,6 +1,5 @@
 use auth_lib::services::{jwt::JWTService, user::UserService};
 
-#[derive(Clone)]
 pub struct AppState {
     user_service: UserService,
     jwt_service: JWTService,

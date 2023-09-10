@@ -1,6 +1,5 @@
 use crate::database::DB;
 
-#[derive(Clone)]
 pub struct LoginService {
     db: DB,
 }

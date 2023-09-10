@@ -8,7 +8,6 @@ use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 use password_auth::generate_hash;
 use uuid::Uuid;
 
-#[derive(Clone)]
 pub struct UserService {
     db: DB,
 }

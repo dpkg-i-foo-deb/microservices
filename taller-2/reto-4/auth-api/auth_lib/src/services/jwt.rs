@@ -1,3 +1,5 @@
+use std::env;
+
 use chrono::Utc;
 use jsonwebtoken::{EncodingKey, Header};
 use serde::{Deserialize, Serialize};
@@ -11,14 +13,11 @@ pub struct Claims<'c> {
     tk_type: &'c str,
 }
 
-#[derive(Clone)]
-pub struct JWTService {
-    secret: String,
-}
+pub struct JWTService {}
 
 impl JWTService {
-    pub fn new(secret: String) -> JWTService {
-        JWTService { secret }
+    pub fn new() -> JWTService {
+        JWTService {}
     }
 
     pub fn generate_access_tk(&self, role: &str) -> Result<String, CoreError> {
@@ -33,7 +32,7 @@ impl JWTService {
         let tk = jsonwebtoken::encode(
             &Header::default(),
             &claims,
-            &EncodingKey::from_secret(self.secret.as_ref()),
+            &EncodingKey::from_secret(get_secret().as_ref()),
         )?;
 
         Ok(tk)
@@ -51,7 +50,7 @@ impl JWTService {
         let tk = jsonwebtoken::encode(
             &Header::default(),
             &claims,
-            &EncodingKey::from_secret(self.secret.as_ref()),
+            &EncodingKey::from_secret(get_secret().as_ref()),
         )?;
 
         Ok(tk)
@@ -69,5 +68,12 @@ fn generate_refresh_exp() -> usize {
     match Utc::now().checked_add_signed(chrono::Duration::days(3)) {
         Some(duration) => duration.timestamp() as usize,
         None => 0,
+    }
+}
+
+fn get_secret() -> String {
+    match env::var("SECRET") {
+        Ok(secret) => secret,
+        Err(err) => panic!("Secret key is required {}", err),
     }
 }

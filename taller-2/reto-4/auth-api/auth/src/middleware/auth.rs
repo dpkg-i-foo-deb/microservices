@@ -1,23 +1,25 @@
-use axum::{
-    http::{Request, StatusCode},
-    middleware::Next,
-    response::Response,
+use rocket::{
+    http::Status,
+    request::{FromRequest, Outcome},
+    Request,
 };
 
-pub async fn auth_middleware<B>(
-    request: Request<B>,
-    next: Next<B>,
-) -> Result<Response, StatusCode> {
-    let headers = request.headers();
+pub struct AuthGuard;
 
-    match headers.get("Authorization") {
-        Some(header) => {
-            let tk = header.to_str().unwrap();
+#[derive(Debug)]
+pub enum AuthError {
+    MissingTk,
+    ExpiredTk,
+}
 
-            println!("{tk}");
+#[rocket::async_trait]
+impl<'r> FromRequest<'r> for AuthGuard {
+    type Error = AuthError;
 
-            Ok(next.run(request).await)
+    async fn from_request(req: &'r Request<'_>) -> Outcome<Self, Self::Error> {
+        match req.headers().get_one("Authorization") {
+            Some(token) => Outcome::Success(AuthGuard),
+            None => Outcome::Failure((Status::Unauthorized, AuthError::MissingTk)),
         }
-        None => Err(StatusCode::UNAUTHORIZED),
     }
 }
