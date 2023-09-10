@@ -14,7 +14,7 @@ use handlers::index::index;
 #[rocket::main]
 async fn main() {
     match setup_app().await {
-        Ok(_) => println!("Server stopped"),
+        Ok(_) => println!("Everything went well!!!"),
         Err(err) => eprintln!("{err}"),
     }
 }
