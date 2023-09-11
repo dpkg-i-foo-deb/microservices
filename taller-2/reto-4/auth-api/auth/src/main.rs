@@ -1,15 +1,22 @@
 use auth_lib::services::jwt::JWTService;
 use auth_lib::services::user::UserService;
 
+use catchers::internal_err;
+use handlers::index::index;
 use handlers::users::register_user;
 use rocket::routes;
 use state::AppState;
 
+#[macro_use]
+extern crate rocket;
+
+mod catchers;
+mod errors;
 mod handlers;
 mod middleware;
+mod responders;
 mod state;
-
-use handlers::index::index;
+mod views;
 
 #[rocket::main]
 async fn main() {
@@ -27,6 +34,7 @@ async fn setup_app() -> Result<(), rocket::Error> {
 
     let _rocket = rocket::build()
         .mount("/", routes![index, register_user])
+        .register("/", catchers![internal_err])
         .manage(state)
         .launch()
         .await?;

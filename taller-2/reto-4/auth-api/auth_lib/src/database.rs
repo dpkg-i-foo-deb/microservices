@@ -11,7 +11,7 @@ impl DB {
         DB {}
     }
 
-    pub fn establish_connection(self) -> Result<PgConnection, CoreError<'static>> {
+    pub fn establish_connection(self) -> Result<PgConnection, CoreError> {
         let db_url = Self::fetch_db_url();
 
         let conn = PgConnection::establish(&db_url)?;
