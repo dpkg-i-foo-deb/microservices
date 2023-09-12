@@ -3,6 +3,7 @@ use crate::{
     responders::ApiResponse,
     views::user::{CreatedUser, NewUserPayload},
 };
+
 use auth_lib::models::user::NewUser;
 use rocket::{post, serde::json::Json, State};
 

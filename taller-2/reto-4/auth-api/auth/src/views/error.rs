@@ -4,6 +4,12 @@ use serde::Serialize;
 static INTERNAL_ERR: &str = "internal_error";
 static INTERNAL_ERR_DESC: &str = "Something went wrong server-side";
 
+static ENTITY_NOT_FOUND: &str = "entity_not_found";
+static ENTITY_NOT_FOUND_DESC: &str = "The requested entity was not found";
+
+static UNAUTHORIZED: &str = "access_denied";
+static UNAUTHORIZED_DESC: &str = "Invalid credentials provided";
+
 #[derive(Serialize, Debug)]
 pub struct ErrorPayload {
     error_id: &'static str,
@@ -15,6 +21,24 @@ impl ErrorPayload {
         let err = ErrorPayload {
             error_id: INTERNAL_ERR,
             error_description: INTERNAL_ERR_DESC,
+        };
+
+        Json(err)
+    }
+
+    pub fn entity_not_found() -> Json<ErrorPayload> {
+        let err = ErrorPayload {
+            error_id: ENTITY_NOT_FOUND,
+            error_description: ENTITY_NOT_FOUND_DESC,
+        };
+
+        Json(err)
+    }
+
+    pub fn unauthorized() -> Json<ErrorPayload> {
+        let err = ErrorPayload {
+            error_id: UNAUTHORIZED,
+            error_description: UNAUTHORIZED_DESC,
         };
 
         Json(err)

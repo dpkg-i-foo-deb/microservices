@@ -1,11 +1,12 @@
+use diesel::ConnectionError;
 use std::{error::Error, fmt::Display, fmt::Formatter};
 
-use diesel::ConnectionError;
 #[derive(Debug)]
 pub enum CoreError {
     DbConnectionError(diesel::ConnectionError),
     DbResultError(diesel::result::Error),
     UserNotFoundError(&'static str),
+    InvalidCredentials(&'static str),
     JWTError(jsonwebtoken::errors::Error),
 }
 
@@ -43,6 +44,9 @@ impl Display for CoreError {
             }
             CoreError::JWTError(err) => {
                 write!(f, "{}", err)
+            }
+            CoreError::InvalidCredentials(err) => {
+                write!(f, "Invalid credentials specified {}", err)
             }
         }
     }

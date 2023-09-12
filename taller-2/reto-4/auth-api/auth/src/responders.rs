@@ -4,4 +4,6 @@ use rocket::{response::Responder, serde::json::Json};
 pub enum ApiResponse<T> {
     #[response(status = 201)]
     Created(Json<T>),
+    #[response(status = 200)]
+    Succcess(Json<T>),
 }

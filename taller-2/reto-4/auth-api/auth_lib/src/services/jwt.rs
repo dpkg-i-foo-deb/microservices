@@ -10,6 +10,7 @@ use crate::errors::CoreError;
 pub struct Claims<'c> {
     exp: usize,
     role: &'c str,
+    email: &'c str,
     tk_type: &'c str,
 }
 
@@ -20,12 +21,13 @@ impl JWTService {
         JWTService {}
     }
 
-    pub fn generate_access_tk(&self, role: &str) -> Result<String, CoreError> {
+    pub fn generate_access_tk(&self, role: &str, email: &str) -> Result<String, CoreError> {
         let exp = generate_auth_exp();
 
         let claims = Claims {
             exp,
             role,
+            email,
             tk_type: "ACCESS",
         };
 
@@ -38,12 +40,13 @@ impl JWTService {
         Ok(tk)
     }
 
-    pub fn generate_refresh_tk(&self, role: &str) -> Result<String, CoreError> {
+    pub fn generate_refresh_tk(&self, role: &str, email: &str) -> Result<String, CoreError> {
         let exp = generate_refresh_exp();
 
         let claims = Claims {
             exp,
             role,
+            email,
             tk_type: "REFRESH",
         };
 
