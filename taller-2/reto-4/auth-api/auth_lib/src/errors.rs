@@ -1,4 +1,5 @@
 use diesel::ConnectionError;
+use password_auth::VerifyError;
 use std::{error::Error, fmt::Display, fmt::Formatter};
 
 #[derive(Debug)]
@@ -27,6 +28,12 @@ impl From<diesel::result::Error> for CoreError {
 impl From<jsonwebtoken::errors::Error> for CoreError {
     fn from(err: jsonwebtoken::errors::Error) -> Self {
         CoreError::JWTError(err)
+    }
+}
+
+impl From<VerifyError> for CoreError {
+    fn from(_: VerifyError) -> Self {
+        CoreError::InvalidCredentials("Invalid password")
     }
 }
 
