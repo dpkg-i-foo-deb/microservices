@@ -4,21 +4,23 @@ use crate::{
     errors::ApiError,
     responders::ApiResponse,
     state::AppState,
-    views::{credentials::CredentialsPayload, jwt::AuthTk},
+    views::{credentials::CredentialsPayload, jwt::Tk, login::LoginData},
 };
 
 #[post("/login", data = "<credentials>")]
 pub fn login(
-    credentials: Json<CredentialsPayload<'_>>,
+    credentials: Json<CredentialsPayload>,
     state: &State<AppState>,
-) -> Result<ApiResponse<AuthTk>, ApiError> {
-    state
+) -> Result<ApiResponse<LoginData>, ApiError> {
+    let tk = state
         .login_service()
         .login(credentials.email(), credentials.password())?;
 
-    let tk = state
-        .jwt_service()
-        .generate_access_tk("uwu?", credentials.email())?;
+    let tk = Tk::new(&tk);
 
-    Ok(ApiResponse::Succcess(Json(AuthTk::new(&tk))))
+    let data = LoginData {
+        message: "Authenticated",
+    };
+
+    Ok(ApiResponse::Authenticated(Json(data), tk))
 }

@@ -8,6 +8,13 @@ pub struct NewUserPayload<'c> {
     pub username: &'c str,
 }
 
+#[derive(Deserialize)]
+pub struct ModifiedUserPayload<'m> {
+    pub email: &'m str,
+    pub password: &'m str,
+    pub username: &'m str,
+}
+
 #[derive(Serialize)]
 pub struct CreatedUser {
     email: String,

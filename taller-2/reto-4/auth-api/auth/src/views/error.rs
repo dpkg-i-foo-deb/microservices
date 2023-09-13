@@ -10,6 +10,9 @@ static ENTITY_NOT_FOUND_DESC: &str = "The requested entity was not found";
 static UNAUTHORIZED: &str = "access_denied";
 static UNAUTHORIZED_DESC: &str = "Invalid credentials provided";
 
+static BAD_REQUEST: &str = "bad_request";
+static BAD_REQUEST_DESC: &str = "There's a problem with the request data";
+
 #[derive(Serialize, Debug)]
 pub struct ErrorPayload {
     error_id: &'static str,
@@ -39,6 +42,15 @@ impl ErrorPayload {
         let err = ErrorPayload {
             error_id: UNAUTHORIZED,
             error_description: UNAUTHORIZED_DESC,
+        };
+
+        Json(err)
+    }
+
+    pub fn bad_request() -> Json<ErrorPayload> {
+        let err = ErrorPayload {
+            error_id: BAD_REQUEST,
+            error_description: BAD_REQUEST_DESC,
         };
 
         Json(err)

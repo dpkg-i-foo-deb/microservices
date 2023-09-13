@@ -1,10 +1,7 @@
-use auth_lib::services::jwt::JWTService;
-use auth_lib::services::login::LoginService;
-use auth_lib::services::user::UserService;
-
 use crate::handlers::login::login;
 use catchers::internal_err;
 use handlers::index::index;
+use handlers::tokens::tokens;
 use handlers::users::register_user;
 use rocket::routes;
 use state::AppState;
@@ -29,14 +26,10 @@ async fn main() {
 }
 
 async fn setup_app() -> Result<(), rocket::Error> {
-    let user_service = UserService::new();
-    let jwt_service = JWTService::new();
-    let login_service = LoginService::new();
-
-    let state = AppState::new(user_service, jwt_service, login_service);
+    let state = AppState::new();
 
     let _rocket = rocket::build()
-        .mount("/", routes![index, register_user, login])
+        .mount("/", routes![index, register_user, login, tokens])
         .register("/", catchers![internal_err])
         .manage(state)
         .launch()

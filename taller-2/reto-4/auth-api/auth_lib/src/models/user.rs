@@ -18,3 +18,9 @@ pub struct NewUser<'u> {
     pub username: &'u str,
     pub password: &'u str,
 }
+
+pub struct ModifiedUser<'m> {
+    pub email: &'m str,
+    pub username: &'m str,
+    pub password: &'m str,
+}

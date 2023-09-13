@@ -9,6 +9,7 @@ pub enum CoreError {
     UserNotFoundError(&'static str),
     InvalidCredentials(&'static str),
     JWTError(jsonwebtoken::errors::Error),
+    JWTTypeError(&'static str),
 }
 
 impl Error for CoreError {}
@@ -54,6 +55,9 @@ impl Display for CoreError {
             }
             CoreError::InvalidCredentials(err) => {
                 write!(f, "Invalid credentials specified {}", err)
+            }
+            CoreError::JWTTypeError(err) => {
+                write!(f, "The requested token type does not exist {}", err)
             }
         }
     }

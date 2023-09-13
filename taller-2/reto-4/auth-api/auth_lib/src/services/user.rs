@@ -1,6 +1,6 @@
 use crate::database::DB;
 use crate::errors::CoreError;
-use crate::models::user::{NewUser, User};
+use crate::models::user::{ModifiedUser, NewUser, User};
 use crate::schema::users::dsl::users;
 use diesel::prelude::*;
 
@@ -39,7 +39,11 @@ impl UserService {
         Ok(user)
     }
 
-    pub fn modify_user(&self, modified_user: &User) -> Result<User, CoreError> {
+    pub fn modify_user(
+        &self,
+        modified_user: &ModifiedUser,
+        usr_id: &str,
+    ) -> Result<User, CoreError> {
         use crate::schema::users::dsl::*;
 
         let mut conn = self.db.establish_connection()?;
@@ -50,7 +54,7 @@ impl UserService {
                 username.eq(&modified_user.username),
                 status.eq("MODIFIED"),
             ))
-            .filter(id.eq(&modified_user.id))
+            .filter(id.eq(usr_id))
             .get_result::<User>(&mut conn)?;
 
         Ok(modified_user)
@@ -84,17 +88,19 @@ impl UserService {
         Ok(true)
     }
 
-    pub fn generate_passwd_recover_email(&self, user_id: &str) -> Result<String, CoreError> {
+    pub fn find_by_email(&self, user_email: &str) -> Result<User, CoreError> {
+        use crate::schema::users::dsl::email;
+
         let mut conn = self.db.establish_connection()?;
 
         let user = users
-            .find(&user_id)
+            .filter(email.eq(user_email))
             .select(User::as_select())
             .first(&mut conn)
             .optional()?;
 
         match user {
-            Some(_) => Ok("Use this link to recover your password".to_string()),
+            Some(user) => Ok(user),
             None => Err(CoreError::UserNotFoundError("User not found")),
         }
     }

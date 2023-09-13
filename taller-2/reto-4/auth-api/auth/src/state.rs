@@ -7,11 +7,11 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new(
-        user_service: UserService,
-        jwt_service: JWTService,
-        login_service: LoginService,
-    ) -> AppState {
+    pub fn new() -> AppState {
+        let user_service = UserService::new();
+        let jwt_service = JWTService::new(UserService::new());
+        let login_service = LoginService::new(JWTService::new(UserService::new()));
+
         AppState {
             user_service,
             jwt_service,

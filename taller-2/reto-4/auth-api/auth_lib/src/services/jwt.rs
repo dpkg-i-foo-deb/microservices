@@ -6,6 +6,12 @@ use serde::{Deserialize, Serialize};
 
 use crate::errors::CoreError;
 
+use super::user::UserService;
+
+const AUTH: &str = "AUTH";
+const REFRESH: &str = "REFRESH";
+const PASSWD_RECOVER: &str = "PASSWD_RECOVER";
+
 #[derive(Serialize, Deserialize)]
 pub struct Claims<'c> {
     exp: usize,
@@ -14,11 +20,22 @@ pub struct Claims<'c> {
     tk_type: &'c str,
 }
 
-pub struct JWTService {}
+pub struct JWTService {
+    user_service: UserService,
+}
 
 impl JWTService {
-    pub fn new() -> JWTService {
-        JWTService {}
+    pub fn new(user_service: UserService) -> JWTService {
+        JWTService { user_service }
+    }
+
+    pub fn generate_tk(&self, tk_type: &str, email: &str, role: &str) -> Result<String, CoreError> {
+        match tk_type {
+            AUTH => Ok(self.generate_access_tk(role, email)?),
+            REFRESH => Ok(self.generate_refresh_tk(role, email)?),
+            PASSWD_RECOVER => Ok(self.generate_passwd_recover_tk(role, email)?),
+            _ => Err(CoreError::JWTTypeError("On generation attempt")),
+        }
     }
 
     pub fn generate_access_tk(&self, role: &str, email: &str) -> Result<String, CoreError> {
@@ -28,7 +45,7 @@ impl JWTService {
             exp,
             role,
             email,
-            tk_type: "ACCESS",
+            tk_type: AUTH,
         };
 
         let tk = jsonwebtoken::encode(
@@ -47,7 +64,28 @@ impl JWTService {
             exp,
             role,
             email,
-            tk_type: "REFRESH",
+            tk_type: REFRESH,
+        };
+
+        let tk = jsonwebtoken::encode(
+            &Header::default(),
+            &claims,
+            &EncodingKey::from_secret(get_secret().as_ref()),
+        )?;
+
+        Ok(tk)
+    }
+
+    pub fn generate_passwd_recover_tk(&self, role: &str, email: &str) -> Result<String, CoreError> {
+        self.user_service.find_by_email(email)?;
+
+        let exp = generate_passwd_recover_exp();
+
+        let claims = Claims {
+            exp,
+            role,
+            email,
+            tk_type: PASSWD_RECOVER,
         };
 
         let tk = jsonwebtoken::encode(
@@ -69,6 +107,13 @@ fn generate_auth_exp() -> usize {
 
 fn generate_refresh_exp() -> usize {
     match Utc::now().checked_add_signed(chrono::Duration::days(3)) {
+        Some(duration) => duration.timestamp() as usize,
+        None => 0,
+    }
+}
+
+fn generate_passwd_recover_exp() -> usize {
+    match Utc::now().checked_add_signed(chrono::Duration::days(1)) {
         Some(duration) => duration.timestamp() as usize,
         None => 0,
     }
