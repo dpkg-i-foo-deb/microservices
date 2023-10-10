@@ -1,0 +1,3 @@
+[workspace]
+
+members = ["auth_http", "auth_bin", "auth_domain"]
