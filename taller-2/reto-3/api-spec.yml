@@ -149,7 +149,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "200":
           description: The user with the specified ID
