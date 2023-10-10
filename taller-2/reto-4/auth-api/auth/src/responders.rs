@@ -6,8 +6,11 @@ use crate::views::jwt::Tk;
 pub enum ApiResponse<T> {
     #[response(status = 200)]
     Authenticated(Json<T>, Tk),
-    #[response(status = 201)]
-    Created(Json<T>),
+
     #[response(status = 200)]
     Succcess(Json<T>),
+    #[response(status = 200)]
+    Modified(Json<T>),
+    #[response(status = 201)]
+    Created(Json<T>),
 }

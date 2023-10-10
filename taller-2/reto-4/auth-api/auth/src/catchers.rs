@@ -7,3 +7,8 @@ use crate::views::error::ErrorPayload;
 pub fn internal_err() -> Json<ErrorPayload> {
     ErrorPayload::internal_err()
 }
+
+#[catch(401)]
+pub fn unauthorized() -> Json<ErrorPayload> {
+    ErrorPayload::unauthorized()
+}

@@ -1,10 +1,17 @@
 use crate::{
     errors::ApiError,
+    middleware::passwd_reset::PasswdResetGuard,
     responders::ApiResponse,
-    views::user::{CreatedUser, ModifiedUserPayload, NewUserPayload},
+    views::{
+        error::ErrorPayload,
+        user::{
+            CreatedUser, ListedUser, ModifiedUser as MdUser, ModifiedUserPayload, NewUserPayload,
+        },
+    },
 };
 
 use auth_lib::models::user::{ModifiedUser, NewUser};
+use paginate::Pages;
 use rocket::{post, serde::json::Json, State};
 
 use crate::state::AppState;
@@ -28,12 +35,46 @@ pub fn register_user(
 }
 
 #[patch("/users/<id>", data = "<updated_user>")]
-pub fn modify_user(updated_user: Json<ModifiedUserPayload>, state: &State<AppState>, id: &str) {
+pub fn modify_user(
+    updated_user: Json<ModifiedUserPayload>,
+    state: &State<AppState>,
+    id: &str,
+    guard: PasswdResetGuard,
+) -> Result<ApiResponse<MdUser>, ApiError> {
     let updated_user = ModifiedUser {
-        email: updated_user.email,
-        username: updated_user.username,
-        password: updated_user.password,
+        email: updated_user.email.unwrap_or(""),
+        username: updated_user.username.unwrap_or(""),
+        password: updated_user.password.unwrap_or(""),
     };
 
-    state.user_service().modify_user(&updated_user, id);
+    state
+        .jwt_service()
+        .check_password_recover_authorization(&guard.get_token(), id)?;
+
+    let updated_user = state.user_service().modify_user(&updated_user, id)?;
+
+    let updated_user = MdUser::from_domain(updated_user);
+
+    Ok(ApiResponse::Modified(Json(updated_user)))
+}
+
+#[get("/users?<limit>&<page>")]
+pub fn list_users(
+    state: &State<AppState>,
+    limit: usize,
+    page: usize,
+) -> Result<ApiResponse<Vec<ListedUser>>, ApiError> {
+    let users = state.user_service().fetch_all()?;
+
+    let mut users = ListedUser::from_domain_list(users);
+
+    let num_items = users.len();
+
+    let pages = Pages::new(num_items, limit);
+
+    let page = pages.with_offset(page);
+
+    let users: Vec<ListedUser> = users.drain(page.start..=page.end).collect();
+
+    Ok(ApiResponse::Succcess(Json(users)))
 }

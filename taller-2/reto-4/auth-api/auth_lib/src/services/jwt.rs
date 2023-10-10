@@ -1,7 +1,7 @@
 use std::env;
 
 use chrono::Utc;
-use jsonwebtoken::{EncodingKey, Header};
+use jsonwebtoken::{decode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 
 use crate::errors::CoreError;
@@ -12,12 +12,12 @@ const AUTH: &str = "AUTH";
 const REFRESH: &str = "REFRESH";
 const PASSWD_RECOVER: &str = "PASSWD_RECOVER";
 
-#[derive(Serialize, Deserialize)]
-pub struct Claims<'c> {
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Claims {
     exp: usize,
-    role: &'c str,
-    email: &'c str,
-    tk_type: &'c str,
+    role: String,
+    email: String,
+    tk_type: String,
 }
 
 pub struct JWTService {
@@ -43,9 +43,9 @@ impl JWTService {
 
         let claims = Claims {
             exp,
-            role,
-            email,
-            tk_type: AUTH,
+            role: role.to_owned(),
+            email: email.to_owned(),
+            tk_type: AUTH.to_owned(),
         };
 
         let tk = jsonwebtoken::encode(
@@ -62,9 +62,9 @@ impl JWTService {
 
         let claims = Claims {
             exp,
-            role,
-            email,
-            tk_type: REFRESH,
+            role: role.to_owned(),
+            email: email.to_owned(),
+            tk_type: REFRESH.to_owned(),
         };
 
         let tk = jsonwebtoken::encode(
@@ -83,9 +83,9 @@ impl JWTService {
 
         let claims = Claims {
             exp,
-            role,
-            email,
-            tk_type: PASSWD_RECOVER,
+            role: role.to_owned(),
+            email: email.to_owned(),
+            tk_type: PASSWD_RECOVER.to_owned(),
         };
 
         let tk = jsonwebtoken::encode(
@@ -95,6 +95,48 @@ impl JWTService {
         )?;
 
         Ok(tk)
+    }
+
+    pub fn check_passwd_recover_tk(&self, tk: &str) -> Result<(), CoreError> {
+        let claims = decode::<Claims>(
+            tk,
+            &DecodingKey::from_secret(get_secret().as_ref()),
+            &Validation::new(Algorithm::HS256),
+        );
+
+        match claims {
+            Ok(data) => match data.claims.tk_type.as_str() {
+                PASSWD_RECOVER => Ok(()),
+                _ => Err(CoreError::JWTTypeError("Unexpected JWT type received")),
+            },
+            Err(err) => Err(CoreError::JWTValidationError(err.to_string())),
+        }
+    }
+
+    pub fn check_password_recover_authorization(
+        &self,
+        tk: &str,
+        usr_id: &str,
+    ) -> Result<(), CoreError> {
+        let user = self.user_service.find_by_id(usr_id)?;
+
+        match decode::<Claims>(
+            tk,
+            &DecodingKey::from_secret(get_secret().as_ref()),
+            &Validation::new(Algorithm::HS256),
+        ) {
+            Ok(data) => {
+                if data.claims.email == user.email {
+                    Ok(())
+                } else {
+                    Err(CoreError::InvalidCredentials(
+                        "On password reset validation",
+                    ))
+                }
+            }
+
+            Err(err) => Err(CoreError::JWTValidationError(err.to_string())),
+        }
     }
 }
 

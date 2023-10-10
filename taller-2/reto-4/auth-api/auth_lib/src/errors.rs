@@ -10,6 +10,7 @@ pub enum CoreError {
     InvalidCredentials(&'static str),
     JWTError(jsonwebtoken::errors::Error),
     JWTTypeError(&'static str),
+    JWTValidationError(String),
 }
 
 impl Error for CoreError {}
@@ -58,6 +59,9 @@ impl Display for CoreError {
             }
             CoreError::JWTTypeError(err) => {
                 write!(f, "The requested token type does not exist {}", err)
+            }
+            CoreError::JWTValidationError(err) => {
+                write!(f, "Could not validate the token {err}")
             }
         }
     }

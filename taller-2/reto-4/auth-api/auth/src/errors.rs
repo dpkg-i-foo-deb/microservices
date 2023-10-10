@@ -25,9 +25,10 @@ impl From<CoreError> for ApiError {
             | CoreError::DbResultError(_)
             | CoreError::JWTError(_) => ApiError::InternalError(ErrorPayload::internal_err()),
             CoreError::UserNotFoundError(_) => {
+                eprintln!("{err}");
                 ApiError::EntityNotFound(ErrorPayload::entity_not_found())
             }
-            CoreError::InvalidCredentials(_) => {
+            CoreError::InvalidCredentials(_) | CoreError::JWTValidationError(_) => {
                 ApiError::Unauthorized(ErrorPayload::unauthorized())
             }
             CoreError::JWTTypeError(_) => ApiError::BadRequest(ErrorPayload::bad_request()),

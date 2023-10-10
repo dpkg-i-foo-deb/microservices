@@ -1,8 +1,8 @@
 use crate::handlers::login::login;
-use catchers::internal_err;
+use catchers::{internal_err, unauthorized};
 use handlers::index::index;
 use handlers::tokens::tokens;
-use handlers::users::register_user;
+use handlers::users::{list_users, modify_user, register_user};
 use rocket::routes;
 use state::AppState;
 
@@ -29,8 +29,11 @@ async fn setup_app() -> Result<(), rocket::Error> {
     let state = AppState::new();
 
     let _rocket = rocket::build()
-        .mount("/", routes![index, register_user, login, tokens])
-        .register("/", catchers![internal_err])
+        .mount(
+            "/",
+            routes![index, register_user, modify_user, login, tokens, list_users],
+        )
+        .register("/", catchers![internal_err, unauthorized])
         .manage(state)
         .launch()
         .await?;
