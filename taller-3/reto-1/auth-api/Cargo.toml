@@ -1,3 +1,0 @@
-[workspace]
-
-members = ["auth_lib", "auth", "auth_testing"]

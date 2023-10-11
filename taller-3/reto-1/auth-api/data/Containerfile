@@ -1,7 +1,0 @@
-FROM docker.io/postgres
-
-COPY schema.sql docker-entrypoint-initdb.d/schema.sql
-
-ENV POSTGRES_USER=dpkg
-ENV POSTGRES_PASSWORD=dpkg
-ENV POSTGRES_DB=auth
