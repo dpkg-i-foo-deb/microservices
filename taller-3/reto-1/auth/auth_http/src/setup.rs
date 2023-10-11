@@ -11,7 +11,7 @@ pub fn build_release() -> Rocket<Build> {
     let state = AppState::new();
 
     let config = Config {
-        ..Config::debug_default()
+        ..Config::release_default()
     };
 
     let rocket = rocket::build()
