@@ -18,7 +18,7 @@ impl<'r> FromRequest<'r> for AuthGuard {
 
     async fn from_request(req: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         match req.headers().get_one("Authorization") {
-            Some(token) => Outcome::Success(AuthGuard),
+            Some(_) => Outcome::Success(AuthGuard),
             None => Outcome::Failure((Status::Unauthorized, AuthError::MissingTk)),
         }
     }
